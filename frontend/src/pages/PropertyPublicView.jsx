@@ -55,11 +55,11 @@ const PropertyPublicView = () => {
       try {
         console.log('Fetching property with ID:', id);
         const data = await propertyService.getProperty(id);
-        console.log('Property data received:', data);
+        console.log('Property data received:', JSON.stringify(data, null, 2));
         // Debug: Check if qr_code exists in the response
-        console.log('QR Code in response:', data.qr_code);
+        console.log('QR Code in response:', data.qr_code ? 'Found' : 'Not found');
         // Debug: Check images array for QR code
-        console.log('Property images:', data.images);
+        console.log('Property images count:', data.images?.length || 0);
         setProperty(data);
       } catch (err) {
         console.error('Error fetching property:', err);
@@ -360,11 +360,11 @@ const PropertyPublicView = () => {
           : newComment.trim();
         
         console.log('Updating review with ID:', existingReview.id);
-        console.log('Update data:', {
+        console.log('Update data:', JSON.stringify({
           comment: updatedComment,
           title: existingReview.title || 'Review',
           overall_rating: existingReview.overall_rating || 1
-        });
+        }, null, 2));
         
         await reviewService.updateReview(existingReview.id, {
           comment: updatedComment,

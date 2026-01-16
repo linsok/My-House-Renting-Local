@@ -153,7 +153,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
                         bakong_phone_number = property.bakong_phone_number
                     else:
                         return Response(
-                            {'error': 'This property does not have Bakong payment enabled'},
+                            {'error': 'This property does not have Bakong payment enabled. Please configure Bakong settings in the property details.'},
                             status=status.HTTP_400_BAD_REQUEST
                         )
                 except Property.DoesNotExist:
@@ -171,6 +171,13 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
+            # Check if Bakong service is available
+            if not bakong_service.khqr:
+                return Response(
+                    {'error': 'Bakong payment service is not configured. Please contact administrator to set up Bakong API credentials.'},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
+            
             # Generate KHQR code
             khqr_data = bakong_service.generate_qr_code(
                 amount=amount_decimal,
@@ -186,8 +193,13 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Response(khqr_data)
             
         except Exception as e:
+            # Log the full error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"KHQR generation failed: {str(e)}", exc_info=True)
+            
             return Response(
-                {'error': f'Failed to generate KHQR code: {str(e)}'},
+                {'error': f'Failed to generate KHQR code: {str(e)}. Please check your Bakong configuration and try again.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     

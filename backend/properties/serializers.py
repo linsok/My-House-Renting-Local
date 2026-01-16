@@ -7,7 +7,7 @@ from users.serializers import UserSerializer
 class PropertyImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PropertyImage
-        fields = ['id', 'image', 'caption', 'is_primary', 'order', 'created_at']
+        fields = ['id', 'image', 'caption', 'is_primary', 'is_qr_code', 'order', 'created_at']
 
 
 class PropertyDocumentSerializer(serializers.ModelSerializer):
@@ -54,6 +54,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
     documents = PropertyDocumentSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_verified = serializers.ReadOnlyField()
+    qr_code = serializers.SerializerMethodField()
     
     class Meta:
         model = Property
@@ -65,7 +66,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             'smoking_allowed', 'status', 'verification_status', 'is_verified',
             'view_count', 'favorite_count', 'rating', 'available_from',
             'use_bakong_payment', 'bakong_bank_account', 'bakong_merchant_name', 'bakong_phone_number',
-            'images', 'documents', 'is_favorited', 'created_at', 'updated_at'
+            'images', 'documents', 'is_favorited', 'qr_code', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'owner', 'verification_status', 'view_count', 'favorite_count',
@@ -77,6 +78,13 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return Favorite.objects.filter(user=request.user, property=obj).exists()
         return False
+    
+    def get_qr_code(self, obj):
+        """Get QR code image if available"""
+        qr_image = obj.images.filter(is_qr_code=True).first()
+        if qr_image and qr_image.image:
+            return self.context['request'].build_absolute_uri(qr_image.image.url)
+        return None
 
 
 class PropertyCreateUpdateSerializer(serializers.ModelSerializer):

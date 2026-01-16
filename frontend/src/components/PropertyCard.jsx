@@ -12,12 +12,12 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
   const [loading, setLoading] = useState(false);
 
   // Debug logging
-  console.log('🏠 PropertyCard rendering:', {
+  console.log('🏠 PropertyCard rendering:', JSON.stringify({
     id: property.id,
     title: property.title,
     recommendation_type: property.recommendation_type,
     isRecommended: property.is_recommended || property.featured || property.recommendation_type
-  });
+  }, null, 2));
 
   const handleFavoriteClick = async (e) => {
     e.preventDefault();
@@ -57,14 +57,14 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
   );
 
   // Debug recommendation detection
-  console.log('🎯 Recommendation detection:', {
+  console.log('🎯 Recommendation detection:', JSON.stringify({
     propertyId: property.id,
     propertyTitle: property.title,
     recommendation_type: property.recommendation_type,
     isRecommended: isRecommended,
     isNewRecommendation: isNewRecommendation,
     willShowOverlay: isNewRecommendation
-  });
+  }, null, 2));
 
   return (
     <Link to={`/properties/${property.id}`} className="block group">
